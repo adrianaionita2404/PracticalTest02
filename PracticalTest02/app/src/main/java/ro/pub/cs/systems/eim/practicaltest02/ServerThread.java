@@ -5,6 +5,7 @@ import android.util.Log;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.DatagramPacket;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -17,7 +18,10 @@ public class ServerThread extends Thread {
     private int sockNr;
 
     // Info handled by server
-    private JSONObject coinDetails = null;
+    public JSONObject coinDetailsUsd = null;
+    public JSONObject coinDetailsEur = null;
+
+    public UpdateThread updateThread;
 
     // Constructor -> init needed structs
     public ServerThread(int sockNr) {
@@ -36,6 +40,7 @@ public class ServerThread extends Thread {
     public void stopServer() {
         isRunning = false;
         try {
+            updateThread.stopUpdate();
             serverSocket.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -47,12 +52,15 @@ public class ServerThread extends Thread {
     @Override
     public void run() {
         try {
+            updateThread = new UpdateThread(this);
+            updateThread.start();
+
             serverSocket = new ServerSocket(sockNr);
             while (isRunning) {
                 Socket socket = serverSocket.accept();
                 if (socket != null) {
                     // Start new thread for each client - custom info in constructor
-                    CommunicationThread communicationThread = new CommunicationThread(socket, coinDetails);
+                    CommunicationThread communicationThread = new CommunicationThread(socket, this);
                     communicationThread.start();
                 }
             }
