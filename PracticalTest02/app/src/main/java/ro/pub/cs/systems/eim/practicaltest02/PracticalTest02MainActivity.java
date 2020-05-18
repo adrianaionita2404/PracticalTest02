@@ -6,15 +6,29 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 
 public class PracticalTest02MainActivity extends AppCompatActivity {
 
     public ServerThread serverThread = null;
 
+    public TextView serverMessageTextView;
+
+    public EditText addressClient;
+    public EditText portClient;
+
+    public EditText reqClient;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_practical_test02_main);
+
+        serverMessageTextView = (TextView) findViewById(R.id.coin_value_text_view);
+        addressClient = (EditText) findViewById(R.id.client_address_edit_text);
+        portClient = (EditText) findViewById(R.id.client_port_edit_text);
+
+        reqClient = (EditText) findViewById(R.id.coin_edit_text);
     }
 
     public void onServerStartPress(View v) {
@@ -34,6 +48,12 @@ public class PracticalTest02MainActivity extends AppCompatActivity {
         } else {
             Log.v(Constants.TAG, "Server already running...");
         }
+    }
+
+    public void onClientStartPress(View v) {
+        ClientAsyncTask clientAsyncTask = new ClientAsyncTask(serverMessageTextView);
+        clientAsyncTask.execute(addressClient.getText().toString(), portClient.getText().toString(),
+                reqClient.getText().toString());
     }
 
     @Override
